@@ -1,0 +1,40 @@
+#TAGS for Plays & Installing Application
+---
+  - name: Play for installing Nginx
+    hosts: web:app
+    tasks:
+     - name: Perform Apt Update
+       shell: apt update
+       tags:
+         - apt
+
+     - name: Install Nginx using Apt
+       apt:
+         name: nginx
+         state: present
+       tags:
+        - nginxtask
+
+     - name: Start the Nginx Service
+       shell: service nginx start
+       tags:
+        - service
+    tags:
+     - nginx
+
+  - name: Play for installing Jq, wget, curl
+    hosts: db
+    tasks:
+     - name: Perform Apt Update
+       shell: apt update
+
+     - name: Installing Tools
+       apt:
+         name: "{{ item }}"
+         state: present
+       with_items:
+         - jq
+         - wget
+         - curl
+    tags:
+     - tools
