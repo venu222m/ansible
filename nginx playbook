@@ -1,0 +1,14 @@
+---------------------Basic-PLaybook-Nginx----------------------
+---
+  - name: Playbook For Installating Nginx
+    hosts: web
+    gather_facts: no
+    tasks:
+      - name: Perform APT Update
+        shell: apt update
+
+      - name: Install Nginx
+        shell: apt install nginx -y
+
+      - name: Start Nginx Service
+        shell: service nginx start
