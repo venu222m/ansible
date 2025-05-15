@@ -3,6 +3,7 @@
 #Ansible tags serve as markers that can be added to individual tasks within an Ansible playbook, 
 #enabling the execution of specific or designated tasks based on these tags during playbook runs. 
 #You'll occasionally need to execute only a portion of a playbook rather than the whole thing
+
 ---
   - name: Play for installing Nginx
     hosts: web:app
@@ -42,3 +43,6 @@
          - curl
     tags:
      - tools
+excute command:
+ansible-playbook (playbookname).yaml -i hosts --tags tools
+only tools play only excute rather than whole thing playbook
