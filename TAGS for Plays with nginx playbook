@@ -1,4 +1,8 @@
+#https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_tags.html
 #TAGS for Plays & Installing Application
+#Ansible tags serve as markers that can be added to individual tasks within an Ansible playbook, 
+#enabling the execution of specific or designated tasks based on these tags during playbook runs. 
+#You'll occasionally need to execute only a portion of a playbook rather than the whole thing
 ---
   - name: Play for installing Nginx
     hosts: web:app
