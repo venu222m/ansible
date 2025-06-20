@@ -1,0 +1,38 @@
+11. can u please write logic in s ansible if another server pinging fine we can transfer file source server to another server 
+and if server not ping we cant transfer
+
+---
+- name: Transfer file to multiple servers if reachable
+  hosts: localhost
+  gather_facts: no
+  vars:
+    dest_servers:
+      - 192.168.1.100
+      - 192.168.1.101
+      - 192.168.1.102
+    source_file: /path/to/source/file.txt
+    dest_user: remoteuser
+    dest_path: /path/to/destination/
+
+  tasks:
+    - name: Loop through servers
+      block:
+        - name: Check if server {{ item }} is reachable
+          shell: "ping -c 2 {{ item }}"
+          register: ping_result
+          ignore_errors: yes
+
+        - name: Transfer file if ping successful
+          when: ping_result.rc == 0
+          delegate_to: "{{ item }}"
+          copy:
+            src: "{{ source_file }}"
+            dest: "{{ dest_path }}"
+          become: yes
+          remote_user: "{{ dest_user }}"
+
+        - name: Print message if server is not reachable
+          when: ping_result.rc != 0
+          debug:
+            msg: "Server {{ item }} is not reachable. Skipping file transfer."
+      loop: "{{ dest_servers }}"
