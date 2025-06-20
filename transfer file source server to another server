@@ -1,6 +1,33 @@
 11. can u please write logic in s ansible if another server pinging fine we can transfer file source server to another server 
 and if server not ping we cant transfer
-
+========================================================
+ansible-project/
+│
+├── inventory/
+│   └── inventory.ini         <-- Inventory file
+│
+├── playbooks/
+│   └── file_transfer.yml     <-- Your main playbook
+│
+├── files/
+│   └── file.txt              <-- Source file to transfer
+│
+├── roles/
+│   └── file_transfer/        <-- Create role for better modularity
+│       ├── tasks/
+│       │   └── main.yml
+│       ├── vars/
+│       │   └── main.yml
+│       ├── handlers/
+│       │   └── main.yml
+│       └── templates/
+│
+├── group_vars/
+│   └── app_servers.yml       <-- Group-level variables
+│
+├── ansible.cfg               <-- Global config file (optional)
+└── README.md
+==========================================================================
 ---
 - name: Transfer file to multiple servers if reachable
   hosts: localhost
