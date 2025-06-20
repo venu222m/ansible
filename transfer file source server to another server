@@ -1,5 +1,12 @@
 11. can u please write logic in s ansible if another server pinging fine we can transfer file source server to another server 
 and if server not ping we cant transfer
+1️⃣ Ansible Control Node Setup
+Requirement	Explanation
+✅ Ansible Installed	Install Ansible on control machine
+✅ SSH access to target servers	Control node must be able to SSH to all target servers
+✅ SSH Key setup (recommended)	Set up passwordless SSH using keys
+✅ Python installed on remote servers	Ansible requires Python on managed nodes
+✅ Correct inventory/vars configured	Have the correct server IPs, usernames, file paths
 ========================================================
 ansible-project/
 │
