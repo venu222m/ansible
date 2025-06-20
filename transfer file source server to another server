@@ -27,7 +27,18 @@ ansible-project/
 │
 ├── ansible.cfg               <-- Global config file (optional)
 └── README.md
-==========================================================================
+===============================simple playbook for single server===========================================
+---
+- name: File Transfer Automation
+  hosts: app_servers
+  become: yes
+
+  tasks:
+    - name: Copy file to target servers
+      copy:
+        src: "../files/file.txt"
+        dest: "/opt/file.txt"
+====================================================
 ---
 - name: Transfer file to multiple servers if reachable
   hosts: localhost
@@ -63,3 +74,32 @@ ansible-project/
           debug:
             msg: "Server {{ item }} is not reachable. Skipping file transfer."
       loop: "{{ dest_servers }}"
+=================================Create Inventory File
+inventory/inventory.ini
+[dest_servers]
+192.168.1.100 ansible_user=remoteuser
+192.168.1.101 ansible_user=remoteuser
+192.168.1.102 ansible_user=remoteuser
+=================playbook.yaml
+- name: Transfer file to multiple servers if reachable
+  hosts: dest_servers
+  gather_facts: no
+  tasks:
+
+    - name: Check if server is reachable
+      shell: "ping -c 2 {{ inventory_hostname }}"
+      register: ping_result
+      ignore_errors: yes
+
+    - name: Transfer file if ping successful
+      when: ping_result.rc == 0
+      copy:
+        src: /path/to/source/file.txt
+        dest: /path/to/destination/file.txt
+      become: yes
+
+    - name: Print message if server is not reachable
+      when: ping_result.rc != 0
+      debug:
+        msg: "Server {{ inventory_hostname }} is not reachable. Skipping file transfer."
+------------------------------------
