@@ -8,6 +8,107 @@ Requirement	Explanation
 ✅ Python installed on remote servers	Ansible requires Python on managed nodes
 ✅ Correct inventory/vars configured	Have the correct server IPs, usernames, file paths
 ========================================================
+===============
+Explanation:
+This playbook runs locally on the control machine (hosts: localhost).
+
+We're not running this playbook on the remote servers directly. Instead, we're using delegate_to to interact with remote servers after doing checks.
+
+gather_facts: no disables fact collection to speed up execution (since we don’t need system facts from localhost).
+
+yaml
+Copy
+Edit
+  vars:
+    dest_servers:
+      - 192.168.1.100
+      - 192.168.1.101
+      - 192.168.1.102
+    source_file: /path/to/source/file.txt
+    dest_user: remoteuser
+    dest_path: /path/to/destination/
+✅ Explanation:
+Here we define variables:
+
+dest_servers: list of IP addresses (servers where we want to transfer file if reachable)
+
+source_file: file to transfer (from Ansible control machine)
+
+dest_user: user account on destination servers
+
+dest_path: destination path on remote servers
+
+yaml
+Copy
+Edit
+  tasks:
+    - name: Loop through servers
+      block:
+✅ Explanation:
+This task uses a block, which groups multiple tasks that will be executed for each server in the list.
+
+🔄 The LOOP starts here:
+yaml
+Copy
+Edit
+      loop: "{{ dest_servers }}"
+We iterate over each server IP stored in dest_servers list.
+
+✅ Inside the block, the following tasks are executed for each server:
+🔹 1st Task: Ping Check
+yaml
+Copy
+Edit
+        - name: Check if server {{ item }} is reachable
+          shell: "ping -c 2 {{ item }}"
+          register: ping_result
+          ignore_errors: yes
+Runs ping -c 2 for the current item (server IP in loop).
+
+register: ping_result saves the output (exit code and stdout/stderr).
+
+ignore_errors: yes — prevents the playbook from failing if ping fails (because we want to continue to next condition).
+
+🔹 2nd Task: File Transfer (only if ping was successful)
+yaml
+Copy
+Edit
+        - name: Transfer file if ping successful
+          when: ping_result.rc == 0
+          delegate_to: "{{ item }}"
+          copy:
+            src: "{{ source_file }}"
+            dest: "{{ dest_path }}"
+          become: yes
+          remote_user: "{{ dest_user }}"
+✅ Key details:
+
+when: ping_result.rc == 0 — only runs if ping returned exit code 0 (successful).
+
+delegate_to: "{{ item }}" — very important!
+
+This means that Ansible connects directly to the remote server only for this task.
+
+copy: module — copies the file from the control machine to the remote server.
+
+become: yes — elevate privileges (use sudo if required).
+
+remote_user: "{{ dest_user }}" — defines SSH user for remote connection.
+
+🔹 3rd Task: Print message if server not reachable
+yaml
+Copy
+Edit
+        - name: Print message if server is not reachable
+          when: ping_result.rc != 0
+          debug:
+            msg: "Server {{ item }} is not reachable. Skipping file transfer."
+✅ Explanation:
+
+Only runs if ping failed (rc != 0)
+
+Just prints a message saying that file transfer will be skipped for this server.==========
+==========================================================================
 ansible-project/
 │
 ├── inventory/
