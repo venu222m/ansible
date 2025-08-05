@@ -1,0 +1,138 @@
+1.Task: Launch an EC2 instance on AWS
+Manual Steps:
+
+Login to AWS Console
+
+Select AMI, instance type
+
+Configure networking, key pair, etc.
+
+Launch instance
+
+Ansible Automation (Example):
+# launch-ec2.yml
+- name: Launch EC2 instance in AWS
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Launch EC2
+      amazon.aws.ec2_instance:
+        name: test-server
+        key_name: my-key
+        instance_type: t2.micro
+        image_id: ami-0abcdef1234567890
+        region: us-east-1
+        count: 1
+        wait: yes
+
+
+
+
+
+✅ OS Patching Automation
+ Task 2: Apply security updates on all Linux servers
+Manual Steps:
+
+SSH into each server
+
+Run yum update or apt-get upgrade
+
+Ansible Automation (Example):
+ patch-linux.yml
+- name: Patch all Linux servers
+  hosts: all
+  become: true
+  tasks:
+    - name: Update all packages (CentOS/RHEL)
+      yum:
+        name: '*'
+        state: latest
+      when: ansible_os_family == "RedHat"
+
+    - name: Update all packages (Ubuntu/Debian)
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+
+
+
+
+
+✅ Log Rotation Automation
+🔹 Task 3: Rotate custom application logs
+Manual Steps:
+
+Create a logrotate configuration file
+
+Test log rotation
+
+Ansible Automation (Example):
+
+- name: Setup log rotation
+  hosts: all
+  become: true
+  tasks:
+    - name: Create logrotate config for myapp
+      copy:
+        dest: /etc/logrotate.d/myapp
+        content: |
+          /var/log/myapp/*.log {
+              daily
+              rotate 7
+              compress
+              missingok
+              notifempty
+              create 0640 root root
+          }
+
+
+
+✅ User Creation and Permission Setup
+🔹 Task 4: Add a new developer user with sudo access
+Manual Steps:
+
+Add user manually
+
+Set password
+
+Modify sudoers
+
+Ansible Automation (Example
+
+
+- name: Add developer user
+  hosts: all
+  become: true
+  tasks:
+    - name: Create user
+      user:
+        name: devuser
+        password: "{{ 'MySecurePassword' | password_hash('sha512') }}"
+        shell: /bin/bash
+
+    - name: Add to sudoers
+      lineinfile:
+        path: /etc/sudoers
+        line: 'devuser ALL=(ALL) NOPASSWD:ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+
+
+
+
+
+
+5. ✅ Service Monitoring/Restart
+🔹 Task 5: Check and restart a crashed service (e.g., nginx)
+Ansible Automation (Example):
+
+- name: Ensure nginx is running
+  hosts: web
+  become: true
+  tasks:
+    - name: Start nginx if not running
+      service:
+        name: nginx
+        state: started
+        enabled: true
